@@ -13,14 +13,14 @@ namespace apiToDo.Controllers
     {
         // [Authorize] - Comentei a linha de autorização, vi que ele estava ocasionando erro na chamada da Rota. 
         // Site que li: https://learn.microsoft.com/pt-br/aspnet/core/security/authorization/simple?view=aspnetcore-9.0
-        [HttpGet("listarTarefas")] // Alterei método da rota para GET e o nome da rota/método para listarTarefas.
-        public ActionResult listarTarefas() 
+        [HttpGet("listarTarefas")] // Alterei método da rota para GET
+        public ActionResult lstTarefa() 
         {
             try
             {
-                Tarefas tarefas = new Tarefas(); // Instanciei a classe Tarefas (model).
+                Tarefas Tarefas = new Tarefas(); // Instanciei a classe Tarefas (model).
                 
-                List<TarefaDTO> listaTarefas = tarefas.listarTarefas(); // Chamei o método listarTarefas da classe Tarefas (model) - ele retorna uma lista de tarefas.
+                List<TarefaDTO> listaTarefas = Tarefas.lstTarefa(); // Chamei o método listarTarefas da classe Tarefas (model) - ele retorna uma lista de tarefas.
                 
                 if (listaTarefas == null) // Verifico se a lista de tarefas está vazia, caso sim, mando um status 404 e uma mensagem. 
                 {
@@ -34,16 +34,44 @@ namespace apiToDo.Controllers
                 return StatusCode(400, new { msg = $"Ocorreu um erro em sua API {ex.Message}"});
             }
         }
+        
+        [HttpGet("buscarPorId")] // Adicionei essa rota porque já tinha criado o método buscarPorId na classe Tarefas (model). Aí já aproveitei para criar a rota.
+        public ActionResult buscarPorId([FromQuery] int ID_TAREFA)
+        {
+            try
+            {
+                Tarefas Tarefas = new Tarefas();
+                
+                TarefaDTO tarefaBuscada = Tarefas.buscarTarefaPorId(ID_TAREFA); // Chamei o método buscarPorId da classe Tarefas (model) - ele retorna uma tarefa pelo ID.
+                
+                if (tarefaBuscada == null)
+                {
+                    return StatusCode(404, new { msg = "Nenhuma tarefa encontrada." });
+                }
+
+                return StatusCode(200, tarefaBuscada);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new { msg = $"Ocorreu um erro em sua API {ex.Message}"});
+            }
+        }
 
         [HttpPost("InserirTarefas")]
         public ActionResult InserirTarefas([FromBody] TarefaDTO Request)
         {
             try
             {
-
-                return StatusCode(200);
-
-
+                Tarefas Tarefas = new Tarefas();
+                
+                TarefaDTO tarefaAdicionada = Tarefas.InserirTarefa(Request); 
+                
+                if (tarefaAdicionada == null)
+                {
+                   throw new Exception("Erro no servidor."); // Se a tarefa não foi adicionada, então algo mais grave aconteceu.
+                }
+                
+                return StatusCode(200, tarefaAdicionada);
             }
 
             catch (Exception ex)
@@ -53,7 +81,7 @@ namespace apiToDo.Controllers
         }
 
         [HttpGet("DeletarTarefa")]
-        public ActionResult DeleteTask([FromQuery] int ID_TAREFA)
+        public ActionResult DeleteTarefa([FromQuery] int ID_TAREFA)
         {
             try
             {
