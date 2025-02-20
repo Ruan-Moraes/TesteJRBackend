@@ -7,31 +7,37 @@ namespace apiToDo.Models
 {
     public class Tarefas
     {
-        public List<TarefaDTO> lstTarefas()
+        private List<TarefaDTO> listaDeTarefas = new List<TarefaDTO>(); // Criei uma lista de tarefas. Isso facilita a manipulação dos itens.
+
+        public Tarefas() // Fiz um mock de tarefas direto no construtor da classe.
+        {
+            listaDeTarefas.Add(new TarefaDTO
+            {
+                ID_TAREFA = 1,
+                DS_TAREFA = "Fazer Compras"
+            });
+            listaDeTarefas.Add(new TarefaDTO
+            {
+                ID_TAREFA = 2,
+                DS_TAREFA = "Fazer Atividade da Faculdade"
+            });
+            listaDeTarefas.Add(new TarefaDTO
+            {
+                ID_TAREFA = 3,
+                DS_TAREFA = "Subir Projeto de Teste no GitHub"
+            });
+        }
+        
+        public List<TarefaDTO> listarTarefas()
         {
             try
             {
-                List<TarefaDTO> lstTarefas = new List<TarefaDTO>();
-
-                lstTarefas.Add(new TarefaDTO
+                if (listaDeTarefas.Count > 0)
                 {
-                    ID_TAREFA = 1,
-                    DS_TAREFA = "Fazer Compras"
-                });
+                    return listaDeTarefas;
+                }
 
-                lstTarefas.Add(new TarefaDTO
-                {
-                    ID_TAREFA = 2,
-                    DS_TAREFA = "Fazer Atividad Faculdade"
-                });
-
-                lstTarefas.Add(new TarefaDTO
-                {
-                    ID_TAREFA = 3,
-                    DS_TAREFA = "Subir Projeto de Teste no GitHub"
-                });
-
-                return new List<TarefaDTO>();
+               return null;
             }
             catch(Exception ex)
             {
@@ -40,7 +46,7 @@ namespace apiToDo.Models
         }
 
 
-        public void InserirTarefa(TarefaDTO Request)
+        /*public void InserirTarefa(TarefaDTO Request)
         {
             try
             {
@@ -65,6 +71,6 @@ namespace apiToDo.Models
             {
                 throw ex;
             }
-        }
+        }*/
     }
 }
