@@ -13,8 +13,8 @@ namespace apiToDo.Controllers
     {
         // [Authorize] - Comentei a linha de autorização, vi que ele estava ocasionando erro na chamada da Rota. 
         // Site que li: https://learn.microsoft.com/pt-br/aspnet/core/security/authorization/simple?view=aspnetcore-9.0
-        [HttpGet("listarTarefas")] // Alterei método da rota para GET
-        public ActionResult lstTarefa()
+        [HttpGet("lstTarefas")] // Alterei método da rota para GET
+        public ActionResult lstTarefas()
         {
             try
             {
@@ -74,17 +74,17 @@ namespace apiToDo.Controllers
             {
                 Tarefas Tarefas = new Tarefas();
 
-                TarefaDTO tarefaAdicionada = Tarefas.InserirTarefa(Request);
+                List<TarefaDTO> TarefasAtualizadas = Tarefas.InserirTarefa(Request);
 
-                if (tarefaAdicionada == null)
+                if (TarefasAtualizadas == null)
                 {
                     return StatusCode(400,
-                        new { msg = "Erro ao adicionar tarefa. Verifique se o id da tarefa não é repetido." });
+                        new { msg = "Erro ao adicionar tarefa. Verifique se o id da tarefa não é repetido.", });
                 }
 
                 return
                     StatusCode(201,
-                        tarefaAdicionada); // Retorno o status 201 (criado com sucesso) e a tarefa adicionada.
+                        TarefasAtualizadas); // Retorno o status 201 (criado com sucesso) e a lista de tarefas atualizada.
             }
 
             catch (Exception ex)
@@ -100,15 +100,15 @@ namespace apiToDo.Controllers
             {
                 Tarefas Tarefas = new Tarefas();
 
-                TarefaDTO tarefaAtualizada = Tarefas.AtualizarTarefa(Request);
+                List<TarefaDTO> listaTarefasAtualizadas = Tarefas.AtualizarTarefa(Request);
 
-                if (tarefaAtualizada == null)
+                if (listaTarefasAtualizadas == null)
                 {
-                    return StatusCode(400,
+                    return StatusCode(404,
                         new { msg = "Erro ao atualizar tarefa. Verifique se o id da tarefa existe." });
                 }
 
-                return StatusCode(200, tarefaAtualizada);
+                return StatusCode(200, listaTarefasAtualizadas);
             }
 
             catch (Exception ex)
@@ -118,25 +118,21 @@ namespace apiToDo.Controllers
         }
 
         [HttpDelete(
-            "DeletarTarefaPorId")] // Alterei o método de GET para DELETE e alterei o nome da rota para DeletarTarefaPorId, fica mais claro.
-        public ActionResult DeleteTarefa([FromQuery] int ID_TAREFA)
+            "DeletarTarefa")] // Alterei o método de GET para DELETE.
+        public ActionResult DeleteTask([FromQuery] int ID_TAREFA)
         {
             try
             {
-                TarefaDTO
-                    tarefaDeletada =
+                List<TarefaDTO>
+                    listaTarefasAtualizadas =
                         new Tarefas()
                             .DeletarTarefa(
                                 ID_TAREFA); // Chamei o método DeletarTarefa da classe Tarefas (model) - ele deleta uma tarefa pelo ID.
 
-                if (tarefaDeletada == null)
+                if (listaTarefasAtualizadas == null)
                     return StatusCode(404, new { msg = "Nenhuma tarefa encontrada para ser removida." });
 
-                return StatusCode(200, new
-                {
-                    msg = "Tarefa removida com sucesso.",
-                    tarefa = tarefaDeletada
-                });
+                return StatusCode(200, listaTarefasAtualizadas);
             }
 
             catch (Exception ex)

@@ -42,10 +42,10 @@ namespace apiToDo.Models
         {
             try
             {
-                if (_listaDeTarefas.Count > 0) // Verifica se a lista de tarefas está vazia.
-                    return _listaDeTarefas; // Retorna a lista de tarefas.
+                if (_listaDeTarefas.Count == 0) // Verifica se a lista de tarefas está vazia.
+                    return null; // Retorna null caso a lista de tarefas esteja vazia.
 
-                return null; // Retorna null em caso de lista vazia.
+                return _listaDeTarefas; // Retorna a lista de tarefas.
             }
             catch (Exception ex)
             {
@@ -68,9 +68,9 @@ namespace apiToDo.Models
             }
         }
 
-        public TarefaDTO
+        public List<TarefaDTO>
             InserirTarefa(
-                TarefaDTO Request) // Alterei o retorno do método de void para TarefaDTO para melhorar a resposta da API.
+                TarefaDTO Request) // Alterei o void para List<TarefaDTO> para retornar a lista de tarefas atualizada.
         {
             try
             {
@@ -81,21 +81,20 @@ namespace apiToDo.Models
                         DS_TAREFA = Request.DS_TAREFA
                     };
 
-
-                List<TarefaDTO> listaTarefas = lstTarefas();
+                List<TarefaDTO> lstResponse = lstTarefas();
 
                 foreach (var tarefa in
-                         listaTarefas) // Verifico se a tarefa já existe na lista de tarefas pelo ID_TAREFA.
+                         lstResponse) // Verifico se a tarefa já existe na lista de tarefas pelo ID_TAREFA.
                 {
                     if (tarefa.ID_TAREFA == tarefaNova.ID_TAREFA)
                     {
-                        return null;
+                        return null; // Retorna null caso a tarefa já exista na lista de tarefas.
                     }
                 }
 
-                _listaDeTarefas.Add(tarefaNova); // Adicionei a nova tarefa na lista de tarefas.
+                _listaDeTarefas.Add(tarefaNova);
 
-                return buscarTarefaPorId(tarefaNova.ID_TAREFA); // Retorna a tarefa inserida ou null em caso de erro.
+                return lstResponse; // Retorna a lista de tarefas atualizada.
             }
             catch (Exception ex)
             {
@@ -103,16 +102,23 @@ namespace apiToDo.Models
             }
         }
 
-        public TarefaDTO AtualizarTarefa(TarefaDTO Request)
+        public List<TarefaDTO> AtualizarTarefa(TarefaDTO Request)
         {
             try
             {
                 List<TarefaDTO> lstResponse = lstTarefas();
 
                 TarefaDTO Tarefa = lstResponse.FirstOrDefault(x => x.ID_TAREFA == Request.ID_TAREFA);
-                Tarefa.DS_TAREFA = Request.DS_TAREFA;
 
-                return Tarefa; // Retorna a tarefa atualizada.
+                if (Tarefa == null)
+                {
+                    return
+                        null; // Retorna null caso a tarefa não seja encontrada. Evita o erro: Object reference not set to an instance of an object.
+                }
+
+                Tarefa.DS_TAREFA = Request.DS_TAREFA; // Só altero a descrição da tarefa.
+
+                return lstResponse;
             }
             catch (Exception ex)
             {
@@ -120,16 +126,22 @@ namespace apiToDo.Models
             }
         }
 
-        public TarefaDTO DeletarTarefa(int ID_TAREFA)
+        public List<TarefaDTO> DeletarTarefa(int ID_TAREFA)
         {
             try
             {
                 List<TarefaDTO> lstResponse = lstTarefas();
 
                 TarefaDTO Tarefa = lstResponse.FirstOrDefault(x => x.ID_TAREFA == ID_TAREFA);
+
+                if (Tarefa == null)
+                {
+                    return null;
+                }
+
                 lstResponse.Remove(Tarefa);
 
-                return Tarefa;
+                return lstResponse;
             }
             catch (Exception ex)
             {
