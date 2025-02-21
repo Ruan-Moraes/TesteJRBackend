@@ -34,11 +34,11 @@ namespace apiToDo.Models
             }
         }
 
-        // Em relação aos métodos abaixo, eu sei que é uma péssima prática colocar métodos de manipulação de dados direto na classe.
-        // Ainda mais em um cenário onde a classe é uma entidade. O correto seria criar uma classe de serviço para manipular esses dados...
+        // Em relação aos métodos abaixo, eu sei que é uma péssima prática colocar métodos de manipulação de dados direto na entidade.
+        // O correto seria criar uma classe de serviço para manipular esses dados...
         // Isso facilitaria a manutenção do código e a organização do projeto, e ainda estaria seguindo um dos princípios do SOLID.
 
-        public List<TarefaDTO> lstTarefa()
+        public List<TarefaDTO> lstTarefas()
         {
             try
             {
@@ -74,18 +74,26 @@ namespace apiToDo.Models
         {
             try
             {
-                // Não fiz validação de ID_TAREFA, então se o ID_TAREFA for repetido, ele vai adicionar uma outra tarefa com o mesmo ID.
-                // Isso me impede de criar um método de alteração, e o metodo de deletar vai deletar a primeira tarefa com o ID_TAREFA encontrado.
+                TarefaDTO tarefaNova =
+                    new TarefaDTO // Criei um objeto do tipo TarefaDTO para adicionar na lista de tarefas.
+                    {
+                        ID_TAREFA = Request.ID_TAREFA,
+                        DS_TAREFA = Request.DS_TAREFA
+                    };
 
-                var tarefaNova = new TarefaDTO // Criei um objeto do tipo TarefaDTO para adicionar na lista de tarefas.
+
+                List<TarefaDTO> listaTarefas = lstTarefas();
+
+                foreach (var tarefa in
+                         listaTarefas) // Verifico se a tarefa já existe na lista de tarefas pelo ID_TAREFA.
                 {
-                    ID_TAREFA = Request.ID_TAREFA,
-                    DS_TAREFA = Request.DS_TAREFA
-                };
+                    if (tarefa.ID_TAREFA == tarefaNova.ID_TAREFA)
+                    {
+                        return null;
+                    }
+                }
 
-                var lstResponse = lstTarefa(); // Chamei o método listarTarefas para pegar a lista de tarefas.
-
-                lstResponse.Add(tarefaNova); // Adicionei a nova tarefa na lista de tarefas.
+                _listaDeTarefas.Add(tarefaNova); // Adicionei a nova tarefa na lista de tarefas.
 
                 return buscarTarefaPorId(tarefaNova.ID_TAREFA); // Retorna a tarefa inserida ou null em caso de erro.
             }
@@ -95,20 +103,38 @@ namespace apiToDo.Models
             }
         }
 
-        /*
-        public void DeletarTarefa(int ID_TAREFA)
+        public TarefaDTO AtualizarTarefa(TarefaDTO Request)
         {
             try
             {
                 List<TarefaDTO> lstResponse = lstTarefas();
-                var Tarefa = lstResponse.FirstOrDefault(x => x.ID_TAREFA == ID_TAREFA);
-                TarefaDTO Tarefa2 = lstResponse.Where(x=> x.ID_TAREFA == Tarefa.ID_TAREFA).FirstOrDefault();
-                lstResponse.Remove(Tarefa2);
+
+                TarefaDTO Tarefa = lstResponse.FirstOrDefault(x => x.ID_TAREFA == Request.ID_TAREFA);
+                Tarefa.DS_TAREFA = Request.DS_TAREFA;
+
+                return Tarefa; // Retorna a tarefa atualizada.
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
-        }*/
+        }
+
+        public TarefaDTO DeletarTarefa(int ID_TAREFA)
+        {
+            try
+            {
+                List<TarefaDTO> lstResponse = lstTarefas();
+
+                TarefaDTO Tarefa = lstResponse.FirstOrDefault(x => x.ID_TAREFA == ID_TAREFA);
+                lstResponse.Remove(Tarefa);
+
+                return Tarefa;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
